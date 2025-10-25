@@ -1,0 +1,55 @@
+[package]
+name = "shinyu-ai"
+version = "0.1.0"
+edition = "2021"
+authors = ["Shunsuke Hayashi <supernovasyun@gmail.com>"]
+description = "心に寄り添う親友AI - Personality-based AI companion"
+
+[dependencies]
+# Core async runtime
+tokio = { version = "1.40", features = ["rt-multi-thread", "macros", "fs", "process"] }
+async-trait = "0.1"
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Error handling
+anyhow = "1.0"
+thiserror = "2.0"
+
+# CLI
+clap = { version = "4.5", features = ["derive"] }
+colored = "3.0"
+dialoguer = "0.12"
+
+# HTTP client for API calls
+reqwest = { version = "0.12", features = ["json"] }
+
+# LLM API (Claude, OpenAI compatible)
+async-openai = { version = "0.24", default-features = false, features = ["rustls"] }
+
+# Environment variables
+dotenvy = "0.15"
+
+# Date/Time
+chrono = { version = "0.4", features = ["serde"] }
+
+# UUID for user IDs
+uuid = { version = "1.11", features = ["v4", "serde"] }
+
+# File system
+dirs = "5.0"
+
+# Logging
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# Vector Database (Qdrant)
+qdrant-client = { version = "1.12", features = ["serde"] }
+
+[dev-dependencies]
+# Testing
+insta = "1.40"
+serial_test = "3.2"
+mockall = "0.13"

@@ -1,0 +1,1656 @@
+# 統合占いアプリ - 完全データベース
+# Integrated Fortune-Telling App - Complete Database
+# Version: 1.0.0
+# Last Updated: 2025-10-25
+
+metadata:
+  app_name: "統合占いプロファイル生成システム"
+  version: "1.0.0"
+  description: "誕生日・名前・出生地/時間・兄弟構成から世界中の占いを統合して総合プロファイルを生成"
+  required_inputs:
+    - birth_date # YYYY-MM-DD
+    - birth_time # HH:MM (optional, but recommended for accurate horoscope)
+    - birth_place # 緯度・経度または住所
+    - full_name # フルネーム
+    - sibling_order # 出生順位: first_born, middle_child, youngest, only_child
+    - sibling_count # 兄弟姉妹の人数
+    - gender # male, female, other
+
+# ========================================
+# 1. 西洋占星術 (Western Astrology / Horoscope)
+# ========================================
+western_astrology:
+  description: "生年月日・出生時刻・出生地から正確なホロスコープを作成し、12星座・惑星配置・ハウス・アスペクトを解析"
+
+  calculation_requirements:
+    birth_date: required
+    birth_time: required # 正確なハウス計算に必須
+    birth_place: required # 緯度・経度が必要
+    ephemeris: "Swiss Ephemeris (高精度天体暦)"
+    house_system: "Placidus" # 世界で最も使用されているシステム
+
+  zodiac_signs:
+    aries:
+      date_range: "3/21 - 4/19"
+      element: "火"
+      quality: "活動宮"
+      ruling_planet: "火星"
+      traits: ["情熱的", "リーダーシップ", "積極的", "競争心", "正直", "衝動的"]
+      strengths: "開拓精神、勇気、行動力"
+      weaknesses: "短気、せっかち、自己中心的"
+
+    taurus:
+      date_range: "4/20 - 5/20"
+      element: "地"
+      quality: "不動宮"
+      ruling_planet: "金星"
+      traits: ["安定志向", "忍耐強い", "実用的", "五感が鋭い", "頑固", "物質主義"]
+      strengths: "信頼性、忍耐力、現実的"
+      weaknesses: "頑固、変化を嫌う、所有欲"
+
+    gemini:
+      date_range: "5/21 - 6/21"
+      element: "風"
+      quality: "柔軟宮"
+      ruling_planet: "水星"
+      traits: ["知的好奇心", "コミュニケーション能力", "適応力", "多才", "軽快", "移り気"]
+      strengths: "柔軟性、社交性、知性"
+      weaknesses: "優柔不断、表面的、落ち着きがない"
+
+    cancer:
+      date_range: "6/22 - 7/22"
+      element: "水"
+      quality: "活動宮"
+      ruling_planet: "月"
+      traits: ["感情豊か", "家族思い", "保護本能", "直感的", "共感力", "繊細"]
+      strengths: "思いやり、忠誠心、想像力"
+      weaknesses: "気分屋、過保護、引っ込み思案"
+
+    leo:
+      date_range: "7/23 - 8/22"
+      element: "火"
+      quality: "不動宮"
+      ruling_planet: "太陽"
+      traits: ["自信", "寛大", "創造的", "演劇的", "リーダー気質", "プライド"]
+      strengths: "カリスマ性、創造力、寛大さ"
+      weaknesses: "傲慢、支配的、虚栄心"
+
+    virgo:
+      date_range: "8/23 - 9/22"
+      element: "地"
+      quality: "柔軟宮"
+      ruling_planet: "水星"
+      traits: ["分析的", "完璧主義", "実用的", "奉仕精神", "細部へのこだわり", "批判的"]
+      strengths: "几帳面、分析力、実務能力"
+      weaknesses: "神経質、批判的、心配性"
+
+    libra:
+      date_range: "9/23 - 10/23"
+      element: "風"
+      quality: "活動宮"
+      ruling_planet: "金星"
+      traits: ["調和", "外交的", "美的感覚", "公平", "社交的", "優柔不断"]
+      strengths: "バランス感覚、協調性、美意識"
+      weaknesses: "優柔不断、対立回避、依存的"
+
+    scorpio:
+      date_range: "10/24 - 11/21"
+      element: "水"
+      quality: "不動宮"
+      ruling_planet: "冥王星"
+      traits: ["情熱的", "洞察力", "ミステリアス", "集中力", "変容", "執念深い"]
+      strengths: "深い洞察力、情熱、決断力"
+      weaknesses: "嫉妬深い、執念深い、秘密主義"
+
+    sagittarius:
+      date_range: "11/22 - 12/21"
+      element: "火"
+      quality: "柔軟宮"
+      ruling_planet: "木星"
+      traits: ["楽観的", "冒険心", "哲学的", "自由奔放", "正直", "無責任"]
+      strengths: "楽観性、冒険心、寛容さ"
+      weaknesses: "無責任、無神経、落ち着きがない"
+
+    capricorn:
+      date_range: "12/22 - 1/19"
+      element: "地"
+      quality: "活動宮"
+      ruling_planet: "土星"
+      traits: ["野心的", "責任感", "実用的", "保守的", "努力家", "厳格"]
+      strengths: "責任感、忍耐力、実行力"
+      weaknesses: "悲観的、頑固、冷淡"
+
+    aquarius:
+      date_range: "1/20 - 2/18"
+      element: "風"
+      quality: "不動宮"
+      ruling_planet: "天王星"
+      traits: ["独創的", "人道主義", "進歩的", "知的", "独立心", "頑固"]
+      strengths: "独創性、人道主義、進歩的思考"
+      weaknesses: "頑固、感情表現が苦手、孤立"
+
+    pisces:
+      date_range: "2/19 - 3/20"
+      element: "水"
+      quality: "柔軟宮"
+      ruling_planet: "海王星"
+      traits: ["直感的", "共感力", "芸術的", "夢想家", "献身的", "逃避的"]
+      strengths: "共感力、芸術性、想像力"
+      weaknesses: "現実逃避、優柔不断、被害者意識"
+
+  planets:
+    sun:
+      symbol: "☉"
+      meaning: "自我、意識、生命力、父性"
+      keywords: ["アイデンティティ", "目的", "創造性"]
+
+    moon:
+      symbol: "☽"
+      meaning: "感情、無意識、母性、習慣"
+      keywords: ["感情", "本能", "安心感"]
+
+    mercury:
+      symbol: "☿"
+      meaning: "知性、コミュニケーション、思考"
+      keywords: ["思考", "言語", "学習"]
+
+    venus:
+      symbol: "♀"
+      meaning: "愛、美、調和、価値観"
+      keywords: ["愛情", "芸術", "快楽"]
+
+    mars:
+      symbol: "♂"
+      meaning: "行動、エネルギー、闘争心"
+      keywords: ["情熱", "勇気", "攻撃性"]
+
+    jupiter:
+      symbol: "♃"
+      meaning: "拡大、幸運、成長、哲学"
+      keywords: ["繁栄", "楽観", "知恵"]
+
+    saturn:
+      symbol: "♄"
+      meaning: "制限、責任、構造、試練"
+      keywords: ["規律", "忍耐", "成熟"]
+
+    uranus:
+      symbol: "♅"
+      meaning: "革命、独創性、突然の変化"
+      keywords: ["革新", "自由", "独立"]
+
+    neptune:
+      symbol: "♆"
+      meaning: "夢、直感、精神性、幻想"
+      keywords: ["想像力", "芸術", "スピリチュアル"]
+
+    pluto:
+      symbol: "♇"
+      meaning: "変容、破壊と再生、権力"
+      keywords: ["変容", "深層心理", "権力"]
+
+  houses:
+    house_1:
+      name: "第1ハウス（アセンダント）"
+      area: "自己、外見、第一印象"
+      keywords: ["個性", "体質", "人生のスタート"]
+
+    house_2:
+      name: "第2ハウス"
+      area: "金銭、所有物、価値観"
+      keywords: ["収入", "才能", "物質的安定"]
+
+    house_3:
+      name: "第3ハウス"
+      area: "コミュニケーション、学習、兄弟"
+      keywords: ["言語能力", "近距離移動", "基礎教育"]
+
+    house_4:
+      name: "第4ハウス（IC）"
+      area: "家庭、ルーツ、感情の基盤"
+      keywords: ["家族", "不動産", "晩年"]
+
+    house_5:
+      name: "第5ハウス"
+      area: "創造性、恋愛、娯楽"
+      keywords: ["趣味", "子供", "自己表現"]
+
+    house_6:
+      name: "第6ハウス"
+      area: "健康、労働、日常習慣"
+      keywords: ["仕事", "健康管理", "奉仕"]
+
+    house_7:
+      name: "第7ハウス（ディセンダント）"
+      area: "パートナーシップ、結婚、契約"
+      keywords: ["配偶者", "ビジネスパートナー", "公的関係"]
+
+    house_8:
+      name: "第8ハウス"
+      area: "変容、遺産、性、死と再生"
+      keywords: ["共有財産", "オカルト", "深い絆"]
+
+    house_9:
+      name: "第9ハウス"
+      area: "哲学、高等教育、海外"
+      keywords: ["精神性", "長距離旅行", "宗教"]
+
+    house_10:
+      name: "第10ハウス（MC）"
+      area: "キャリア、社会的地位、目標"
+      keywords: ["天職", "名声", "権威"]
+
+    house_11:
+      name: "第11ハウス"
+      area: "友人、グループ、理想"
+      keywords: ["ネットワーク", "社会活動", "未来志向"]
+
+    house_12:
+      name: "第12ハウス"
+      area: "無意識、秘密、精神世界"
+      keywords: ["潜在意識", "隠れた敵", "孤独"]
+
+  aspects:
+    conjunction:
+      angle: 0
+      orb: 8
+      nature: "強力な融合"
+      interpretation: "2つの惑星のエネルギーが強く結合"
+
+    sextile:
+      angle: 60
+      orb: 6
+      nature: "調和的"
+      interpretation: "才能や機会を示す穏やかな側面"
+
+    square:
+      angle: 90
+      orb: 8
+      nature: "緊張・挑戦"
+      interpretation: "葛藤や困難、成長の機会"
+
+    trine:
+      angle: 120
+      orb: 8
+      nature: "幸運・調和"
+      interpretation: "才能や幸運を示す最も良い側面"
+
+    opposition:
+      angle: 180
+      orb: 8
+      nature: "対立・バランス"
+      interpretation: "対立する力、統合の必要性"
+
+# ========================================
+# 2. 動物占い (Animal Fortune-Telling)
+# ========================================
+animal_fortune:
+  description: "生年月日から60分類の動物キャラクターを算出し、性格・相性を診断"
+
+  calculation_algorithm: |
+    # 動物占い計算アルゴリズム
+    # 基準日: 1921年1月1日を「1」とする
+
+    def calculate_animal_character(birth_date):
+        # 1. 生年月日をシリアル値に変換（Excelと同様）
+        #    例: 1985-01-01 = 31046
+        serial_value = convert_to_serial(birth_date)
+
+        # 2. 60分類の番号を計算
+        character_number = ((serial_value + 8) % 60) + 1
+
+        # 3. キャラクター番号から動物・リズム・カラーを参照
+        return lookup_character(character_number)
+
+    # 早見表方式（簡易版）:
+    # 1. 生まれた年と月が交わる数字を早見表から取得
+    # 2. その数字に生まれた日を足す
+    # 3. 合計が61以上なら60を引く
+    # 4. 結果の1-60の番号で動物キャラを特定
+
+  animals:
+    wolf:
+      id: 1
+      name: "狼"
+      base_personality: "一匹狼タイプ。独立心が強く、自分のペースを大切にする。集団行動は苦手だが、信頼した相手には忠実。"
+      strengths: ["独立心", "直感力", "集中力"]
+      weaknesses: ["孤立しやすい", "頑固", "協調性に欠ける"]
+      love_style: "じっくり時間をかけて信頼関係を築く"
+      work_style: "個人プレーが得意、マイペースな環境で力を発揮"
+      colors:
+        - "ブルー": "冷静で分析的"
+        - "グリーン": "誠実で堅実"
+        - "レッド": "情熱的で行動的"
+        - "イエロー": "明るく社交的"
+        - "ブラウン": "安定志向で保守的"
+
+    monkey:
+      id: 2
+      name: "猿"
+      base_personality: "明るく社交的で、人を楽しませるのが得意。好奇心旺盛で器用だが、飽きっぽい一面も。"
+      strengths: ["社交性", "器用さ", "適応力"]
+      weaknesses: ["飽きっぽい", "計画性に欠ける", "落ち着きがない"]
+      love_style: "楽しい恋愛を好む、刺激を求める"
+      work_style: "マルチタスクが得意、変化のある環境を好む"
+      colors:
+        - "ブルー": "知的で冷静"
+        - "グリーン": "バランス感覚に優れる"
+        - "レッド": "行動的でエネルギッシュ"
+        - "イエロー": "陽気で人気者"
+        - "ブラウン": "現実的で堅実"
+
+    tiger:
+      id: 3
+      name: "虎"
+      base_personality: "リーダーシップがあり、堂々としている。プライドが高く、負けず嫌い。正義感が強い。"
+      strengths: ["リーダーシップ", "決断力", "正義感"]
+      weaknesses: ["プライドが高い", "妥協しにくい", "支配的"]
+      love_style: "情熱的で主導権を握りたがる"
+      work_style: "リーダーポジションで力を発揮"
+      colors:
+        - "ブルー": "戦略的思考"
+        - "グリーン": "公正で誠実"
+        - "レッド": "攻撃的で情熱的"
+        - "イエロー": "明るくカリスマ的"
+        - "ブラウン": "伝統を重んじる"
+
+    koala:
+      id: 4
+      name: "子守熊（コアラ）"
+      base_personality: "マイペースでのんびり。平和主義で争いを好まない。優しく包容力がある。"
+      strengths: ["包容力", "平和主義", "癒し系"]
+      weaknesses: ["優柔不断", "受け身", "決断力に欠ける"]
+      love_style: "安定した関係を好む、尽くすタイプ"
+      work_style: "サポート役が向いている、急かされるのは苦手"
+      colors:
+        - "ブルー": "穏やかで思慮深い"
+        - "グリーン": "自然体で調和的"
+        - "レッド": "意外と情熱的"
+        - "イエロー": "明るく親しみやすい"
+        - "ブラウン": "安定と安心を重視"
+
+    panther:
+      id: 5
+      name: "黒豹"
+      base_personality: "クールでミステリアス。洞察力が鋭く、感情を表に出さない。完璧主義。"
+      strengths: ["洞察力", "冷静さ", "完璧主義"]
+      weaknesses: ["感情表現が苦手", "他者との距離", "孤独になりやすい"]
+      love_style: "クールだが深く愛する、選択的"
+      work_style: "専門性を活かせる分野で活躍"
+      colors:
+        - "ブルー": "知的でクール"
+        - "グリーン": "バランス感覚に優れる"
+        - "レッド": "情熱を秘める"
+        - "イエロー": "意外と社交的"
+        - "ブラウン": "実務的で堅実"
+
+    lion:
+      id: 6
+      name: "ライオン"
+      base_personality: "王者の風格。自信があり、人の上に立つことを好む。面倒見が良い。"
+      strengths: ["カリスマ性", "統率力", "寛大さ"]
+      weaknesses: ["傲慢", "プライドの高さ", "独裁的"]
+      love_style: "情熱的で守ってあげたいタイプ"
+      work_style: "リーダーシップを発揮できる環境"
+      colors:
+        - "ブルー": "冷静な判断力"
+        - "グリーン": "公平で誠実"
+        - "レッド": "情熱的で力強い"
+        - "イエロー": "華やかで魅力的"
+        - "ブラウン": "安定感のあるリーダー"
+
+    cheetah:
+      id: 7
+      name: "チータ"
+      base_personality: "スピード感があり、行動が早い。好奇心旺盛で飽きっぽい。瞬発力がある。"
+      strengths: ["行動力", "瞬発力", "好奇心"]
+      weaknesses: ["飽きっぽい", "持続力に欠ける", "計画性がない"]
+      love_style: "情熱的だが冷めやすい、刺激を求める"
+      work_style: "短期集中型、新しいプロジェクトが好き"
+      colors:
+        - "ブルー": "冷静で戦略的"
+        - "グリーン": "バランスを取る"
+        - "レッド": "超行動的"
+        - "イエロー": "明るく活発"
+        - "ブラウン": "実務的スピード"
+
+    pegasus:
+      id: 8
+      name: "ペガサス"
+      base_personality: "自由を愛し、束縛を嫌う。夢想家で理想が高い。独創的なアイデアを持つ。"
+      strengths: ["独創性", "自由な発想", "理想主義"]
+      weaknesses: ["現実感に欠ける", "束縛を嫌う", "気まぐれ"]
+      love_style: "自由な関係を好む、ロマンチスト"
+      work_style: "クリエイティブな仕事が向いている"
+      colors:
+        - "ブルー": "知的で理想的"
+        - "グリーン": "調和と自由"
+        - "レッド": "情熱的な夢追い人"
+        - "イエロー": "明るく自由奔放"
+        - "ブラウン": "現実的な理想主義"
+
+    elephant:
+      id: 9
+      name: "象"
+      base_personality: "どっしりと安定感がある。責任感が強く、計画的。保守的で慎重。"
+      strengths: ["安定感", "責任感", "計画性"]
+      weaknesses: ["頑固", "変化を嫌う", "心配性"]
+      love_style: "真面目で誠実、長期的な関係を築く"
+      work_style: "コツコツ型、管理職向き"
+      colors:
+        - "ブルー": "冷静で慎重"
+        - "グリーン": "誠実で堅実"
+        - "レッド": "意外と情熱的"
+        - "イエロー": "明るく社交的"
+        - "ブラウン": "超安定志向"
+
+    tanuki:
+      id: 10
+      name: "たぬき"
+      base_personality: "人当たりが良く、世渡り上手。計算高い面もあるが、温厚で平和主義。"
+      strengths: ["世渡り上手", "社交性", "適応力"]
+      weaknesses: ["計算高い", "八方美人", "本音を隠す"]
+      love_style: "相手に合わせるのが得意"
+      work_style: "人間関係を活かせる仕事"
+      colors:
+        - "ブルー": "冷静で戦略的"
+        - "グリーン": "調和を重視"
+        - "レッド": "意外と積極的"
+        - "イエロー": "社交的で人気者"
+        - "ブラウン": "安定志向"
+
+    fawn:
+      id: 11
+      name: "こじか"
+      base_personality: "純粋で素直。人懐っこく、愛されキャラ。繊細で傷つきやすい。"
+      strengths: ["純粋さ", "素直さ", "愛嬌"]
+      weaknesses: ["繊細", "依存的", "傷つきやすい"]
+      love_style: "一途で献身的、守ってもらいたい"
+      work_style: "サポート役、温かい環境が必要"
+      colors:
+        - "ブルー": "繊細で感受性豊か"
+        - "グリーン": "優しく穏やか"
+        - "レッド": "意外と情熱的"
+        - "イエロー": "明るく人懐っこい"
+        - "ブラウン": "安心感を求める"
+
+    sheep:
+      id: 12
+      name: "ひつじ"
+      base_personality: "温和で従順。集団行動が得意で、周りに合わせる。平和主義。"
+      strengths: ["協調性", "温和さ", "従順さ"]
+      weaknesses: ["主体性に欠ける", "優柔不断", "流されやすい"]
+      love_style: "相手に尽くすタイプ、安定を求める"
+      work_style: "チームワークが得意"
+      colors:
+        - "ブルー": "穏やかで思慮深い"
+        - "グリーン": "調和的で優しい"
+        - "レッド": "意外と芯が強い"
+        - "イエロー": "明るく社交的"
+        - "ブラウン": "安定と安心"
+
+  calculation_note: |
+    60分類は、12動物 × 5カラー = 60パターン
+    各カラーは性格の強弱や傾向の違いを示す
+
+    実装時は早見表またはアルゴリズム計算を使用
+    早見表: 年月日の組み合わせから1-60を参照
+    アルゴリズム: ((シリアル値 + 8) % 60) + 1
+
+# ========================================
+# 3. 数秘術 (Numerology)
+# ========================================
+numerology:
+  description: "生年月日と名前から運命数・表現数を算出し、人生の目的や才能を解析"
+
+  calculation_algorithm: |
+    # 運命数（Life Path Number）計算
+    def calculate_life_path_number(birth_date):
+        # 例: 1988-06-11
+        # 1 + 9 + 8 + 8 + 6 + 1 + 1 = 34
+        # 3 + 4 = 7 → 運命数は7
+
+        # マスターナンバー（11, 22, 33）の場合は1桁にしない
+        # 例: 1990-07-12
+        # 1 + 9 + 9 + 0 + 7 + 1 + 2 = 29
+        # 2 + 9 = 11 → マスターナンバー11
+
+        digits = extract_all_digits(birth_date)
+        total = sum(digits)
+
+        # マスターナンバーチェック
+        if total in [11, 22, 33, 44]:
+            return total
+
+        # 1桁になるまで足す
+        while total > 9:
+            total = sum_digits(total)
+
+        return total
+
+    # 表現数（Expression Number）計算 - 名前から
+    def calculate_expression_number(full_name):
+        # A=1, B=2, C=3... Z=26
+        # 各文字を数字に変換して合計
+        # 1桁になるまで足す
+
+        letter_values = {'A':1, 'B':2, 'C':3, ...}
+        total = sum([letter_values[char] for char in full_name.upper() if char.isalpha()])
+
+        # マスターナンバーチェック
+        if total in [11, 22, 33]:
+            return total
+
+        while total > 9:
+            total = sum_digits(total)
+
+        return total
+
+  life_path_numbers:
+    1:
+      meaning: "リーダー・パイオニア"
+      personality: "独立心が強く、リーダーシップがある。新しいことに挑戦する勇気を持つ。自己主張が強い。"
+      strengths: ["独立心", "リーダーシップ", "創造性", "勇気"]
+      weaknesses: ["自己中心的", "傲慢", "頑固"]
+      career: "起業家、経営者、リーダーポジション"
+      life_purpose: "自分の道を切り開き、他者を導く"
+
+    2:
+      meaning: "調和者・外交官"
+      personality: "協調性があり、平和を愛する。感受性が高く、他者の気持ちを理解できる。"
+      strengths: ["協調性", "外交力", "感受性", "共感力"]
+      weaknesses: ["優柔不断", "依存的", "過敏"]
+      career: "カウンセラー、外交官、調停者"
+      life_purpose: "調和とバランスをもたらす"
+
+    3:
+      meaning: "表現者・クリエイター"
+      personality: "創造的で表現力豊か。社交的で明るく、人を楽しませる才能がある。"
+      strengths: ["創造性", "表現力", "社交性", "楽観性"]
+      weaknesses: ["散漫", "浅薄", "計画性に欠ける"]
+      career: "アーティスト、作家、エンターテイナー"
+      life_purpose: "創造性と喜びを世界に広める"
+
+    4:
+      meaning: "建設者・実務家"
+      personality: "実用的で組織的。コツコツと努力を重ね、安定を重視する。責任感が強い。"
+      strengths: ["組織力", "実用性", "責任感", "忍耐力"]
+      weaknesses: ["頑固", "柔軟性に欠ける", "変化を恐れる"]
+      career: "エンジニア、会計士、管理職"
+      life_purpose: "堅実な基盤を築く"
+
+    5:
+      meaning: "冒険者・自由人"
+      personality: "自由を愛し、変化と冒険を求める。好奇心旺盛で多才。束縛を嫌う。"
+      strengths: ["適応力", "好奇心", "多才", "冒険心"]
+      weaknesses: ["落ち着きがない", "飽きっぽい", "無責任"]
+      career: "旅行業、ジャーナリスト、営業"
+      life_purpose: "自由と多様性を体験し伝える"
+
+    6:
+      meaning: "養育者・責任者"
+      personality: "愛情深く、家族や友人を大切にする。責任感があり、調和を重視。"
+      strengths: ["愛情深さ", "責任感", "調和", "奉仕精神"]
+      weaknesses: ["過保護", "心配性", "自己犠牲"]
+      career: "教師、看護師、カウンセラー"
+      life_purpose: "愛とケアを提供する"
+
+    7:
+      meaning: "探求者・哲学者"
+      personality: "知的で分析的。真理を探求し、精神性を重視。内向的で独立心が強い。"
+      strengths: ["分析力", "直感力", "精神性", "知性"]
+      weaknesses: ["孤立しやすい", "懐疑的", "感情表現が苦手"]
+      career: "研究者、哲学者、スピリチュアルティーチャー"
+      life_purpose: "真理と知恵を探求する"
+
+    8:
+      meaning: "達成者・権力者"
+      personality: "野心的で実業家気質。成功と権力を求め、物質的豊かさを重視。"
+      strengths: ["野心", "実行力", "組織力", "経営能力"]
+      weaknesses: ["物質主義", "支配的", "仕事中毒"]
+      career: "経営者、金融業、政治家"
+      life_purpose: "物質的成功と豊かさを達成する"
+
+    9:
+      meaning: "人道主義者・完成者"
+      personality: "思いやりがあり、人類全体の幸福を願う。芸術性と精神性が高い。"
+      strengths: ["慈悲深さ", "芸術性", "理想主義", "寛容さ"]
+      weaknesses: ["理想主義的すぎる", "現実逃避", "犠牲的"]
+      career: "慈善活動家、アーティスト、ヒーラー"
+      life_purpose: "人類に奉仕し、世界をより良くする"
+
+    11:
+      meaning: "マスターナンバー - インスピレーションの使者"
+      personality: "直感力が非常に高く、スピリチュアルなメッセージを受け取る。理想が高く、他者を啓発する使命を持つ。"
+      strengths: ["直感力", "霊感", "理想主義", "啓発力"]
+      weaknesses: ["神経質", "非現実的", "自己否定"]
+      career: "スピリチュアルティーチャー、カウンセラー、アーティスト"
+      life_purpose: "精神的啓発と高次の真理を伝える"
+      special_note: "マスターナンバー11は「2」の要素も持つ"
+
+    22:
+      meaning: "マスターナンバー - マスタービルダー"
+      personality: "最強のマスターナンバー。大きなビジョンを現実化する力を持つ。カリスマ性とパワーがある。"
+      strengths: ["ビジョン実現力", "カリスマ性", "組織力", "パワー"]
+      weaknesses: ["プレッシャー", "完璧主義", "ストレス過多"]
+      career: "大規模プロジェクトリーダー、社会改革者、建築家"
+      life_purpose: "壮大なビジョンを具現化し世界を変える"
+      special_note: "マスターナンバー22は「4」の要素も持つ"
+
+    33:
+      meaning: "マスターナンバー - マスターティーチャー"
+      personality: "宇宙規模の愛を持つ。無条件の愛と奉仕の精神で、人類を癒し導く使命を持つ。"
+      strengths: ["無条件の愛", "癒しの力", "教える才能", "慈悲"]
+      weaknesses: ["自己犠牲", "現実逃避", "過度の期待"]
+      career: "ヒーラー、教師、スピリチュアルガイド"
+      life_purpose: "無条件の愛で人類を癒し導く"
+      special_note: "マスターナンバー33は「6」の要素も持つ"
+
+  expression_numbers:
+    description: "名前から算出される数字で、生まれ持った才能や表現方法を示す"
+    note: "各数字の意味は運命数と同様だが、才能や表現方法の側面を強調"
+
+# ========================================
+# 4. 兄弟構成診断 (Sibling Order Psychology)
+# ========================================
+sibling_psychology:
+  description: "出生順位・兄弟姉妹の人数・性別・年齢差から性格傾向を分析"
+
+  theoretical_basis: "アドラー心理学に基づく出生順位理論と、近年の心理学研究"
+
+  birth_orders:
+    first_born:
+      name: "長子（第一子）"
+      general_traits:
+        personality: "責任感が強く、リーダーシップがある。真面目で几帳面。完璧主義の傾向。"
+        strengths: ["責任感", "リーダーシップ", "几帳面", "信頼性", "計画性"]
+        weaknesses: ["完璧主義", "柔軟性に欠ける", "プレッシャーに弱い", "批判的"]
+      love_tendency: "真面目で安定した関係を好む。主導権を握りたがる傾向。"
+      work_tendency: "管理職やリーダーポジションが向いている。責任ある仕事を好む。"
+      psychological_background: "親から最初の愛情を独占した後、弟妹の誕生で関心を奪われる経験から、責任感と完璧主義が形成される"
+
+      gender_variations:
+        eldest_son:
+          traits: "家族の期待を背負いやすい。男性的役割を強く意識。保護本能が強い。"
+        eldest_daughter:
+          traits: "母親代わりとして弟妹の世話を任されることが多い。世話好きで面倒見が良い。"
+
+      age_gap_influence:
+        small_gap: "競争意識が強く、弟妹との差別化を図ろうとする"
+        large_gap: "一人っ子的要素も持ち、弟妹を可愛がる傾向"
+
+    middle_child:
+      name: "中間子（真ん中の子）"
+      general_traits:
+        personality: "柔軟で適応力がある。平和主義で調停役。独自性を求める傾向。"
+        strengths: ["適応力", "外交力", "協調性", "柔軟性", "独立心"]
+        weaknesses: ["自己主張が弱い", "存在感の薄さ", "アイデンティティ探し"]
+      love_tendency: "相手に合わせるのが得意。安定よりも理解を求める。"
+      work_tendency: "チームワークが得意。交渉や調整役に向いている。"
+      psychological_background: "上にも下にもいる立場から、バランス感覚と適応力が育つ。注目を集めにくい環境から独自性を追求"
+
+      unique_characteristics:
+        - "最も研究が難しい立場（上下両方の影響を受ける）"
+        - "友人関係を重視する傾向が強い"
+        - "家族外での承認を求めやすい"
+
+      coping_strategies:
+        - "外の世界で自分の居場所を見つける"
+        - "独自の才能や趣味を開発"
+        - "交渉・調整能力を活かす"
+
+    youngest:
+      name: "末っ子"
+      general_traits:
+        personality: "明るく社交的。甘え上手で愛されキャラ。自由奔放で創造的。"
+        strengths: ["社交性", "創造性", "楽観性", "愛嬌", "適応力"]
+        weaknesses: ["甘え", "責任感の欠如", "依存的", "わがまま"]
+      love_tendency: "甘えるのが得意。楽しい関係を好む。守ってもらいたい願望。"
+      work_tendency: "クリエイティブな仕事が向いている。型にはまらない発想。"
+      psychological_background: "常に年上に囲まれ、可愛がられる環境から、社交性と甘え上手が形成される"
+
+      gender_variations:
+        youngest_son:
+          traits: "自由奔放で冒険的。甘やかされやすく、マイペース。"
+        youngest_daughter:
+          traits: "家族のアイドル的存在。愛嬌があり、守られやすい。"
+
+      family_dynamics:
+        overprotection: "過保護になりやすく、自立が遅れる可能性"
+        comparison: "常に兄姉と比較される環境でユニークさを追求"
+
+    only_child:
+      name: "一人っ子"
+      general_traits:
+        personality: "成熟していて大人びている。独立心が強い。完璧主義で几帳面。"
+        strengths: ["成熟性", "独立心", "集中力", "創造性", "自己管理能力"]
+        weaknesses: ["協調性に欠ける", "孤独を感じやすい", "完璧主義", "譲ることが苦手"]
+      love_tendency: "深い関係を好む。独占欲が強い傾向。一人の時間も大切にする。"
+      work_tendency: "個人プレーが得意。専門性を活かせる分野で活躍。"
+      psychological_background: "親の愛情を独占し、大人との関わりが多いため、成熟した思考と独立心が育つ"
+
+      unique_characteristics:
+        - "大人との関わりが多く、言語能力が高い傾向"
+        - "兄弟間の競争がないため、マイペース"
+        - "孤独耐性が高い反面、協調性の習得に課題"
+
+      modern_trends:
+        japan_context: "日本では増加傾向。教育投資が集中し、高学歴率が高い"
+        social_skills: "習い事やグループ活動で社交性を補完することが重要"
+
+  combined_factors:
+    sibling_count:
+      two_children: "役割が明確（上/下）で特徴が強く出やすい"
+      three_children: "中間子特有の性格が顕著に"
+      four_plus_children: "個々の役割が複雑化、同性同士の影響も大きい"
+
+    gender_composition:
+      all_same_gender: "性別役割は薄く、出生順位の影響が強い"
+      mixed_gender: "性別と出生順位の相互作用が複雑"
+      only_opposite: "特別な役割（例: 男の子の中の唯一の女の子）を担う"
+
+    age_gap:
+      small_gap_0_2_years: "競争が激しく、差別化を図る傾向"
+      medium_gap_3_5_years: "標準的な兄弟関係、バランスが取れる"
+      large_gap_6_plus_years: "それぞれが一人っ子的要素を持つ"
+
+  important_notes:
+    - "出生順位の影響は幼少期に顕著だが、成長と共に薄れる"
+    - "親の養育態度や家庭環境の影響が大きい"
+    - "近年の研究では出生順位の影響を疑問視する声もある"
+    - "個人差が大きく、あくまで傾向として捉えるべき"
+
+# ========================================
+# 5. ユーモア系占い (Fun Fortune-Telling)
+# ========================================
+fun_fortunes:
+  description: "エンターテイメント性の高いユニークな占い"
+
+  vegetable_fortune:
+    name: "野菜占い"
+    description: "あなたを野菜に例えると？性格診断"
+
+    vegetables:
+      tomato:
+        name: "トマト"
+        personality: "表現力豊かで、勇気がある。創造的で目立つ存在。繰り返し作業は苦手。"
+        traits: ["表現力", "勇気", "創造性", "存在感"]
+        love: "情熱的で積極的。感情をストレートに表現する。"
+        work: "クリエイティブな仕事、人前に出る仕事が向いている。"
+        image_prompt: "A cheerful red tomato character with expressive eyes and a confident smile, standing center stage under a spotlight, vibrant and energetic, digital art"
+
+      cucumber:
+        name: "きゅうり"
+        personality: "常に冷静で落ち着いている。感受性が高く、チームプレーが得意。恋愛はゆっくり進める。"
+        traits: ["冷静", "感受性", "協調性", "忍耐力"]
+        love: "じっくり時間をかけて関係を深める。安定を好む。"
+        work: "チームワークが重要な仕事、サポート役が向いている。"
+        image_prompt: "A cool and calm cucumber character with gentle features, surrounded by a peaceful aura, working harmoniously in a team setting, soft watercolor style"
+
+      carrot:
+        name: "にんじん"
+        personality: "粘り強く、努力家。目標達成能力が高い。恋愛では主導権を握る。"
+        traits: ["粘り強さ", "努力家", "達成志向", "リーダーシップ"]
+        love: "リードするのが得意。パートナーを大切にケアする。"
+        work: "目標設定がある仕事、プロジェクトリーダーが向いている。"
+        image_prompt: "A determined orange carrot character climbing a mountain towards a goal flag, strong and persistent, motivational poster style"
+
+      lettuce:
+        name: "レタス"
+        personality: "優しく包容力がある。周りを癒す存在。柔軟で適応力が高い。"
+        traits: ["優しさ", "包容力", "柔軟性", "癒し系"]
+        love: "相手を包み込む愛情。安心感を与える。"
+        work: "ケア系の仕事、カウンセリング、教育が向いている。"
+        image_prompt: "A soft and gentle lettuce character embracing others with open leaves, creating a warm and safe atmosphere, pastel illustration"
+
+      radish:
+        name: "大根"
+        personality: "どっしりと安定感がある。芯が強く、信頼できる。地に足がついている。"
+        traits: ["安定感", "信頼性", "堅実", "忍耐力"]
+        love: "真面目で誠実。長期的な関係を大切にする。"
+        work: "管理職、財務、堅実な業務が向いている。"
+        image_prompt: "A solid and reliable white radish character standing firm like a pillar, dependable and trustworthy, realistic illustration"
+
+      bell_pepper:
+        name: "ピーマン"
+        personality: "最初は苦手と思われがちだが、知れば知るほど魅力がある。成長と共に味わい深くなる。"
+        traits: ["成長性", "深み", "栄養価の高さ", "個性"]
+        love: "時間をかけて真価を発揮。長く付き合うほど良さがわかる。"
+        work: "専門性を磨く仕事、経験が活きる分野が向いている。"
+        image_prompt: "A green bell pepper character gradually revealing inner beauty and depth, transformation sequence, artistic digital painting"
+
+      onion:
+        name: "玉ねぎ"
+        personality: "層が深く、多面的。涙もろい面もあるが、料理（人生）に欠かせない存在。"
+        traits: ["多面性", "深み", "感情豊か", "不可欠な存在"]
+        love: "深い感情を持つ。泣いたり笑ったり感情表現が豊か。"
+        work: "多様なスキルを活かせる仕事、縁の下の力持ち。"
+        image_prompt: "A layered onion character showing different personalities in each layer, complex and emotional, conceptual art"
+
+      eggplant:
+        name: "ナス"
+        personality: "クールでミステリアス。独特の魅力がある。変幻自在で多様な可能性を秘める。"
+        traits: ["ミステリアス", "多様性", "適応力", "魅力"]
+        love: "ミステリアスで魅力的。相手を引き込む魔力。"
+        work: "クリエイティブな仕事、変化のある環境が向いている。"
+        image_prompt: "A mysterious purple eggplant character with an enigmatic aura, shapeshifting and adapting, surreal art style"
+
+      corn:
+        name: "とうもろこし"
+        personality: "明るくポジティブ。甘さと親しみやすさがある。みんなに愛される人気者。"
+        traits: ["明るさ", "ポジティブ", "親しみやすさ", "人気"]
+        love: "明るく楽しい関係を好む。甘い言葉が得意。"
+        work: "接客業、エンターテイメント、営業が向いている。"
+        image_prompt: "A bright yellow corn character spreading joy and positivity, surrounded by friends, cheerful cartoon style"
+
+      broccoli:
+        name: "ブロッコリー"
+        personality: "栄養価が高く、健康志向。小さな集合体で大きな力を発揮。チームワークの達人。"
+        traits: ["健康志向", "チームワーク", "効率性", "価値の高さ"]
+        love: "健全で健康的な関係を好む。相手の成長をサポート。"
+        work: "チームプロジェクト、ヘルスケア、教育が向いている。"
+        image_prompt: "A healthy green broccoli character leading a team of tiny florets working together, dynamic and energetic, modern illustration"
+
+      potato:
+        name: "じゃがいも"
+        personality: "万能で頼りになる。どんな状況にも対応できる。庶民的で親しみやすい。"
+        traits: ["万能性", "信頼性", "庶民的", "適応力"]
+        love: "安定していて頼りになる。家庭的で温かい。"
+        work: "様々な業務に対応できる、オールラウンダー。"
+        image_prompt: "A versatile brown potato character juggling multiple tasks effortlessly, reliable and down-to-earth, warm illustration"
+
+      pumpkin:
+        name: "かぼちゃ"
+        personality: "温かく包容力がある。甘さと優しさを兼ね備える。季節感を大切にする。"
+        traits: ["温かさ", "包容力", "甘さ", "季節感"]
+        love: "温かく包み込むような愛情。家庭的で優しい。"
+        work: "ホスピタリティ業界、ケア系、教育が向いている。"
+        image_prompt: "A warm orange pumpkin character creating a cozy autumn atmosphere, nurturing and comforting, cozy illustration"
+
+  mushroom_fortune:
+    name: "キノコ占い"
+    description: "あなたをキノコに例えると？性格診断"
+
+    mushrooms:
+      shiitake:
+        name: "椎茸（しいたけ）"
+        personality: "吸収力が高く、周りの良いものを取り入れる才能がある。出汁（エッセンス）を出せる存在。"
+        traits: ["吸収力", "適応力", "エッセンス", "深い味わい"]
+        special_ability: "環境から学び、自分の力に変える"
+        image_prompt: "A wise shiitake mushroom character absorbing knowledge from books and nature, deep and flavorful, Japanese ink painting style"
+
+      maitake:
+        name: "舞茸（まいたけ）"
+        personality: "どんな困難にも耐えられる忍耐力。雪国の寒さにも負けない強さ。見つけると踊るほどの価値。"
+        traits: ["忍耐力", "レア度", "価値の高さ", "強靭さ"]
+        special_ability: "逆境を乗り越える力"
+        image_prompt: "A resilient maitake mushroom character dancing in the snow, rare and valuable, celebratory art style"
+
+      enoki:
+        name: "えのき茸"
+        personality: "細くて長い。協力して束になることで強くなる。個では弱くても集団で力を発揮。"
+        traits: ["協調性", "団結力", "柔軟性", "シンプル"]
+        special_ability: "チームワークで大きな力を生む"
+        image_prompt: "A group of slender enoki mushroom characters standing together in unity, strength in numbers, minimalist art"
+
+      truffle:
+        name: "トリュフ"
+        personality: "希少で高価。香りで周りを引き立てる。隠れた才能を持ち、見つけてもらうのを待つ。"
+        traits: ["希少性", "高級感", "引き立て役", "香り高さ"]
+        special_ability: "他者の良さを引き出す"
+        image_prompt: "A luxurious black truffle character emanating aromatic waves, hidden treasure being discovered, elegant luxury art"
+
+      eringi:
+        name: "エリンギ"
+        personality: "しっかりした存在感。食感（キャラクター）がしっかりしている。洋風にも和風にも合う柔軟性。"
+        traits: ["存在感", "しっかり感", "柔軟性", "万能性"]
+        special_ability: "どんな環境にも馴染める"
+        image_prompt: "A sturdy eringi mushroom character adapting to both Western and Japanese settings, versatile and solid, modern illustration"
+
+      matsutake:
+        name: "松茸（まつたけ）"
+        personality: "最高級の香り。特別な存在感。季節を感じさせる風情。プライドが高い。"
+        traits: ["高級感", "特別感", "香り高さ", "プライド"]
+        special_ability: "その場を特別な雰囲気にする"
+        image_prompt: "A regal matsutake mushroom character in an autumn forest, exuding elegance and premium quality, traditional Japanese art"
+
+  fruit_fortune:
+    name: "フルーツ占い"
+    description: "あなたをフルーツに例えると？恋愛傾向診断"
+
+    fruits:
+      strawberry:
+        name: "イチゴ"
+        personality: "明るく自分に自信がある。生活を楽しむが忍耐力に欠ける。甘く可愛らしい。"
+        traits: ["明るさ", "自信", "楽しさ", "可愛らしさ"]
+        love: "楽しい恋愛を好む。甘い関係を求める。"
+        image_prompt: "A cute strawberry character with sparkles and confidence, enjoying life to the fullest, kawaii anime style"
+
+      apple:
+        name: "リンゴ"
+        personality: "行動が実務的で冷静。計画的で堅実。バランスが良く、健康的。"
+        traits: ["実務的", "冷静", "計画性", "バランス"]
+        love: "安定した関係を好む。堅実な愛情。"
+        image_prompt: "A reliable red apple character with a planner and balanced lifestyle, practical and healthy, clean vector art"
+
+      banana:
+        name: "バナナ"
+        personality: "一見強そうだが中身は柔らかく感傷的。親しみやすく、エネルギッシュ。"
+        traits: ["親しみやすさ", "エネルギッシュ", "感傷的", "柔軟性"]
+        love: "外見は強そうだが、実は優しく繊細。"
+        image_prompt: "A friendly banana character with a tough exterior but soft heart, energetic yet sensitive, playful cartoon"
+
+      grape:
+        name: "ぶどう"
+        personality: "集団で力を発揮。一粒一粒は小さくても集まると大きな価値。協調性が高い。"
+        traits: ["協調性", "集団力", "豊かさ", "多様性"]
+        love: "仲間や家族を大切にする。集団での幸せを求める。"
+        image_prompt: "A cluster of grape characters working together harmoniously, strength in unity, vibrant purple art"
+
+      watermelon:
+        name: "スイカ"
+        personality: "外は硬いが中は甘い。夏の主役。大きな存在感。みんなでシェアする喜び。"
+        traits: ["存在感", "甘さ", "シェアの心", "季節感"]
+        love: "大らかで包容力がある。みんなで楽しむことを好む。"
+        image_prompt: "A large watermelon character being shared among friends in summer, generous and sweet inside, refreshing summer art"
+
+      lemon:
+        name: "レモン"
+        personality: "酸っぱいが爽やか。他者を引き立てる存在。ビタミン（エネルギー）を与える。"
+        traits: ["爽やかさ", "引き立て役", "エネルギッシュ", "刺激"]
+        love: "刺激的な関係。相手を引き立てる。"
+        image_prompt: "A zesty lemon character energizing and enhancing others, fresh and vibrant, citrus splash art"
+
+  weather_fortune:
+    name: "天気占い"
+    description: "あなたを天気に例えると？雰囲気診断"
+
+    weathers:
+      sunny:
+        name: "晴れ"
+        personality: "明るく周りを照らす存在。ポジティブでエネルギッシュ。みんなを元気にする。"
+        traits: ["明るさ", "ポジティブ", "エネルギッシュ", "温かさ"]
+        atmosphere: "周りを明るくする太陽のような存在"
+        image_prompt: "A radiant sunny character spreading light and warmth to everyone around, bright and cheerful, glowing sunshine art"
+
+      cloudy:
+        name: "曇り"
+        personality: "穏やかで優しい。直射日光を和らげる配慮。落ち着いた雰囲気。"
+        traits: ["穏やかさ", "優しさ", "配慮", "落ち着き"]
+        atmosphere: "穏やかで安心感を与える存在"
+        image_prompt: "A gentle cloudy character creating a soft and peaceful atmosphere, calming and considerate, soft pastel clouds"
+
+      rainy:
+        name: "雨"
+        personality: "感情豊かで涙もろい。恵みをもたらす。浄化と成長を促す。"
+        traits: ["感情豊か", "恵み", "浄化", "成長促進"]
+        atmosphere: "感情表現が豊かで、成長を促す存在"
+        image_prompt: "A emotional rainy character bringing blessings and growth, tears of joy and healing, watercolor rain art"
+
+      snowy:
+        name: "雪"
+        personality: "清らかで純粋。静かで美しい。特別な時にだけ現れる。"
+        traits: ["純粋さ", "美しさ", "静けさ", "特別感"]
+        atmosphere: "清らかで特別な雰囲気を作る存在"
+        image_prompt: "A pure white snowy character creating a serene and beautiful atmosphere, quiet elegance, crystal snowflake art"
+
+      rainbow:
+        name: "虹"
+        personality: "希望と美の象徴。多様性を持つ。雨上がりに現れる幸運。"
+        traits: ["希望", "美", "多様性", "幸運"]
+        atmosphere: "希望と美をもたらす特別な存在"
+        image_prompt: "A colorful rainbow character symbolizing hope and diversity after the rain, magical and uplifting, vibrant arc art"
+
+# ========================================
+# 6. 時系列分析 (Temporal Analysis)
+# ========================================
+temporal_analysis:
+  description: "過去10年・現在・未来10年の運勢を西洋占星術のトランジットで算出"
+
+  methodology:
+    name: "トランジット法（Transit）"
+    definition: "現在の惑星位置が、出生図（ネイタルチャート）の惑星とどのようなアスペクトを形成するかを分析"
+
+    calculation_approach: |
+      # トランジット計算アルゴリズム
+
+      def calculate_transit_influences(natal_chart, target_date):
+          # 1. target_date時点の惑星位置を計算（天体暦使用）
+          current_planets = get_planet_positions(target_date)
+
+          # 2. ネイタルチャートの惑星との角度を計算
+          aspects = []
+          for natal_planet in natal_chart.planets:
+              for current_planet in current_planets:
+                  aspect = calculate_aspect(natal_planet, current_planet)
+                  if aspect:
+                      aspects.append(aspect)
+
+          # 3. 影響の強さを評価
+          # - 外惑星（木星、土星、天王星、海王星、冥王星）の影響が大きい
+          # - コンジャンクション、スクエア、オポジションは特に重要
+
+          # 4. 時期の特徴をテキスト生成
+          return generate_period_interpretation(aspects)
+
+    key_transits:
+      jupiter_return:
+        cycle: "約12年"
+        meaning: "新たな成長と拡大の時期。幸運と機会が訪れる。"
+
+      saturn_return:
+        cycle: "約30年"
+        meaning: "人生の節目。責任と成熟を求められる試練の時期。新しいステージへの移行。"
+        age_milestones: [29, 59, 89]
+
+      uranus_opposition:
+        cycle: "約84年（半周期42年）"
+        meaning: "中年の危機。人生の大きな転換点。"
+        age_milestone: 42
+
+      neptune_square:
+        cycle: "約165年（1/4周期約41年）"
+        meaning: "精神的な目覚めや混乱。現実と理想のギャップ。"
+
+      pluto_square:
+        cycle: "約248年（1/4周期約62年）"
+        meaning: "人生の大変容。深い内的変化。"
+
+  time_periods:
+    past_10_years:
+      description: "過去10年間の主要なトランジットを分析し、経験した出来事の意味を解釈"
+      calculation: |
+        for year in range(current_year - 10, current_year):
+            major_transits = get_major_transits(natal_chart, year)
+            annual_themes[year] = interpret_transits(major_transits)
+
+      interpretation_focus:
+        - "どのような成長や学びがあったか"
+        - "困難な時期の意味"
+        - "成功や幸運の背景"
+
+    current_period:
+      description: "現在（±1年）のトランジットを詳細分析"
+      calculation: |
+        current_transits = get_current_transits(natal_chart, current_date)
+        monthly_forecast = get_monthly_forecast(natal_chart, current_date, months=12)
+
+      interpretation_focus:
+        - "今年のテーマと課題"
+        - "月ごとの運勢変化"
+        - "重要な決断のタイミング"
+
+    future_10_years:
+      description: "未来10年間の主要なトランジットを予測し、人生の流れを展望"
+      calculation: |
+        for year in range(current_year + 1, current_year + 11):
+            major_transits = get_major_transits(natal_chart, year)
+            annual_forecast[year] = interpret_transits(major_transits)
+
+      interpretation_focus:
+        - "今後の成長の方向性"
+        - "重要な転換期の予測"
+        - "チャンスの時期と準備すべきこと"
+
+  interpretation_template:
+    past_year_example: |
+      【2023年の運勢】
+      木星が第7ハウス通過: パートナーシップに幸運。新しい出会いや契約の年。
+      土星が太陽にスクエア: 試練の時期。責任と忍耐が求められた。
+
+      総合: 人間関係では幸運に恵まれたが、個人的な課題に直面した成長の年。
+
+    current_year_example: |
+      【2025年の運勢】
+      木星が第8ハウス通過: 共有財産や深い絆がテーマ。変容の年。
+      土星が金星にトライン: 安定した愛情関係。責任ある恋愛。
+
+      総合: 深い人間関係を築き、内的成長を遂げる年。
+
+    future_year_example: |
+      【2030年の運勢】
+      土星リターン（29-30歳）: 人生の大きな節目。新しいステージへ。
+      木星が第10ハウス通過: キャリアで大きな成功の可能性。
+
+      総合: 人生の転換点。責任と成熟を伴う大きな成功が期待できる年。
+
+# ========================================
+# 7. 統合プロファイル生成 (Integrated Profile Generation)
+# ========================================
+integrated_profile:
+  description: "複数の占いを統合し、一貫性のある総合プロファイルを生成"
+
+  integration_algorithm: |
+    # 統合プロファイル生成アルゴリズム
+
+    def generate_integrated_profile(user_data):
+        # 1. 各占いシステムから結果を取得
+        horoscope = calculate_horoscope(user_data.birth_date, user_data.birth_time, user_data.birth_place)
+        animal = calculate_animal_fortune(user_data.birth_date)
+        numerology = calculate_numerology(user_data.birth_date, user_data.full_name)
+        sibling = analyze_sibling_order(user_data.sibling_order, user_data.sibling_count, user_data.gender)
+
+        # オプション: ユーモア系占い
+        vegetable = calculate_vegetable_fortune(user_data.preferences)
+
+        # 2. 共通テーマを抽出
+        common_traits = extract_common_traits([
+            horoscope.traits,
+            animal.traits,
+            numerology.traits,
+            sibling.traits
+        ])
+
+        # 3. 矛盾点を調整
+        contradictions = identify_contradictions([horoscope, animal, numerology, sibling])
+        adjusted_profile = reconcile_contradictions(contradictions)
+
+        # 4. 統合プロファイル文を生成
+        profile_text = generate_profile_narrative(
+            common_traits=common_traits,
+            unique_aspects=[horoscope, animal, numerology, sibling],
+            contradictions_resolved=adjusted_profile
+        )
+
+        return IntegratedProfile(
+            summary=profile_text,
+            detailed_breakdown={
+                'horoscope': horoscope,
+                'animal': animal,
+                'numerology': numerology,
+                'sibling': sibling
+            },
+            common_traits=common_traits,
+            temporal_analysis=calculate_temporal_analysis(horoscope)
+        )
+
+  trait_weighting:
+    description: "各占いシステムの信頼性と重要度に基づくウェイト付け"
+
+    weights:
+      western_astrology: 0.35 # 最も包括的で詳細
+      numerology: 0.25 # 深い洞察を提供
+      animal_fortune: 0.20 # 文化的背景と相性診断
+      sibling_psychology: 0.15 # 環境要因
+      fun_fortunes: 0.05 # エンターテイメント要素
+
+    note: "ユーザーが出生時刻・出生地を提供していない場合は、西洋占星術のウェイトを下げ、他を上げる"
+
+  common_trait_extraction:
+    method: "キーワードマッチングと意味的類似性分析"
+
+    trait_categories:
+      - "性格傾向（内向/外向、思考/感情など）"
+      - "強み・才能"
+      - "弱み・課題"
+      - "恋愛傾向"
+      - "仕事適性"
+      - "人間関係パターン"
+
+    example:
+      input_traits:
+        horoscope: ["リーダーシップ", "情熱的", "短気"]
+        animal: ["独立心", "集中力", "孤立しやすい"]
+        numerology: ["独立心", "リーダーシップ", "自己中心的"]
+        sibling: ["責任感", "リーダーシップ", "完璧主義"]
+
+      extracted_common:
+        - "リーダーシップ" # 4/4で一致
+        - "独立心" # 3/4で一致
+        - "自己中心的・孤立しやすい" # 意味的に類似、統合
+
+  contradiction_handling:
+    philosophy: "矛盾は個人の多面性として肯定的に捉え、状況による使い分けとして説明"
+
+    examples:
+      contradiction_1:
+        systems:
+          horoscope: "社交的（天秤座）"
+          animal: "一匹狼（狼）"
+        resolution: "社交的な場面では天秤座の外交力を発揮しますが、本質的には一人の時間を大切にする独立心も持っています。状況に応じて使い分ける柔軟性があります。"
+
+      contradiction_2:
+        systems:
+          numerology: "完璧主義（運命数4）"
+          sibling: "気楽で楽観的（末っ子）"
+        resolution: "仕事や重要なプロジェクトでは完璧主義を発揮しますが、日常生活や人間関係では末っ子らしい気楽さと楽観性を見せます。ON/OFFの切り替えが上手です。"
+
+  narrative_generation:
+    structure:
+      introduction:
+        content: "総合的な第一印象とコアな性格特性"
+        length: "150-200文字"
+        example: "あなたは、周囲を明るく照らす太陽のような存在感と、内に秘めた独立心を併せ持つ人物です。リーダーシップがあり、責任感が強い一方で、一人の時間も大切にします。"
+
+      detailed_personality:
+        content: "各占いからの詳細な性格分析"
+        length: "400-600文字"
+        subsections:
+          - "基本性格（西洋占星術・数秘術）"
+          - "行動パターン（動物占い）"
+          - "対人関係の傾向（兄弟構成）"
+
+      strengths_and_talents:
+        content: "共通して現れる強みと才能"
+        length: "200-300文字"
+        format: "箇条書き + 説明"
+
+      challenges_and_growth:
+        content: "弱み・課題と成長の方向性"
+        length: "200-300文字"
+        tone: "ポジティブで励ます表現"
+
+      love_and_relationships:
+        content: "恋愛傾向とパートナーシップ"
+        length: "200-300文字"
+
+      career_and_work:
+        content: "仕事適性とキャリアパス"
+        length: "200-300文字"
+
+      life_journey:
+        content: "過去10年・現在・未来10年の流れ"
+        length: "300-500文字"
+        subsections:
+          - "過去の振り返り"
+          - "現在のテーマ"
+          - "未来の展望"
+
+      fun_element:
+        content: "ユーモア系占い結果"
+        length: "100-150文字"
+        tone: "軽やかで楽しい"
+
+    total_length: "約2000-3000文字"
+
+  output_format:
+    json_structure: |
+      {
+        "user_id": "UUID",
+        "generated_at": "2025-10-25T10:00:00Z",
+        "input_data": {
+          "birth_date": "1990-07-12",
+          "birth_time": "14:30",
+          "birth_place": {"lat": 35.6895, "lon": 139.6917, "name": "Tokyo"},
+          "full_name": "Taro Yamada",
+          "sibling_order": "first_born",
+          "sibling_count": 2,
+          "gender": "male"
+        },
+        "individual_results": {
+          "western_astrology": {...},
+          "animal_fortune": {...},
+          "numerology": {...},
+          "sibling_psychology": {...},
+          "fun_fortunes": {...}
+        },
+        "integrated_profile": {
+          "summary": "統合プロファイル本文（2000-3000文字）",
+          "common_traits": ["リーダーシップ", "独立心", "責任感", ...],
+          "contradictions_resolved": [...],
+          "personality_type": "リーダー型・独立心の強い責任者",
+          "life_purpose": "自分の道を切り開き、他者を導く",
+          "current_life_stage": "成長と責任のバランスを取る時期",
+          "future_outlook": "2030年頃に大きな転換点、キャリアで成功の可能性"
+        },
+        "temporal_analysis": {
+          "past_10_years": [...],
+          "current_year": {...},
+          "future_10_years": [...]
+        },
+        "visual_elements": {
+          "zodiac_chart_url": "...",
+          "animal_image_url": "...",
+          "numerology_diagram_url": "...",
+          "timeline_visualization_url": "..."
+        }
+      }
+
+# ========================================
+# 8. AI画像生成プロンプト (AI Image Generation Prompts)
+# ========================================
+ai_image_prompts:
+  description: "各占いカテゴリのビジュアル表現用AI画像生成プロンプト"
+
+  zodiac_signs:
+    aries:
+      prompt: "A fierce ram with golden horns charging forward with determination, surrounded by flames and energy, dynamic composition, fantasy art, vibrant reds and oranges"
+      style: "fantasy, heroic, dynamic"
+
+    taurus:
+      prompt: "A majestic bull standing in a lush green field with flowers, calm and stable, earthly tones, serene atmosphere, realistic painting style"
+      style: "realistic, serene, earthy"
+
+    gemini:
+      prompt: "Twin figures made of light and air, mirroring each other, surrounded by books and communication symbols, airy and intellectual, art nouveau style"
+      style: "art nouveau, intellectual, airy"
+
+    cancer:
+      prompt: "A mystical crab emerging from moonlit water, protective shell glowing softly, emotional and dreamy atmosphere, watercolor illustration"
+      style: "watercolor, emotional, dreamy"
+
+    leo:
+      prompt: "A regal lion with a glowing golden mane sitting on a throne, radiating confidence and warmth, dramatic lighting, majestic digital art"
+      style: "majestic, dramatic, golden"
+
+  animal_characters:
+    wolf:
+      prompt: "A solitary wolf standing on a mountain peak under the moonlight, independent and focused, mysterious atmosphere, cinematic digital painting"
+      style: "cinematic, mysterious, independent"
+
+    monkey:
+      prompt: "A cheerful monkey swinging through colorful trees, playful and energetic, bright and vibrant, cartoon illustration style"
+      style: "cartoon, playful, vibrant"
+
+    tiger:
+      prompt: "A powerful tiger with intense eyes showing leadership and strength, commanding presence, dramatic jungle background, realistic 3D render"
+      style: "realistic 3D, powerful, dramatic"
+
+  numerology_symbols:
+    number_1:
+      prompt: "The number 1 as a glowing golden pillar reaching towards the sky, symbolizing leadership and new beginnings, abstract geometric art"
+      style: "abstract, geometric, golden"
+
+    number_11:
+      prompt: "Double pillars of light representing master number 11, spiritual energy flowing between them, ethereal and mystical, cosmic art style"
+      style: "cosmic, mystical, ethereal"
+
+  temporal_visualization:
+    past_present_future:
+      prompt: "A timeline visualization showing past (sepia tones), present (vibrant colors), and future (ethereal glow), with planetary symbols and life events, infographic style"
+      style: "infographic, timeline, symbolic"
+
+    life_cycles:
+      prompt: "Circular mandala showing life cycles with astrological symbols, seasons, and human growth stages, harmonious and balanced, sacred geometry"
+      style: "sacred geometry, circular, balanced"
+
+  integrated_profile:
+    cosmic_portrait:
+      prompt: "A person's silhouette filled with zodiac constellations, animal spirits, numbers, and life symbols, cosmic and personal, double exposure effect"
+      style: "double exposure, cosmic, personal"
+
+    personality_mandala:
+      prompt: "A complex mandala combining elements from astrology, numerology, and nature, representing a complete personality profile, intricate and colorful"
+      style: "mandala, intricate, colorful"
+
+# ========================================
+# 9. 参考API・ライブラリ (Reference APIs & Libraries)
+# ========================================
+reference_apis_libraries:
+  description: "実装に使用可能なAPI・ライブラリのリスト"
+
+  astrology_apis:
+    swiss_ephemeris:
+      name: "Swiss Ephemeris"
+      type: "Library"
+      description: "高精度天体暦ライブラリ。8000年以上の惑星位置計算が可能。"
+      license: "GPL or Commercial"
+      pricing:
+        free_version: "GPL版は無料（オープンソース）"
+        commercial: "CHF 750（初回ライセンス）+ CHF 400（追加ライセンス）≈ USD 500 + USD 270"
+      url: "https://www.astro.com/swisseph/"
+      languages: ["C", "Python (pyswisseph)", "JavaScript (swisseph)"]
+      pros: ["最高精度", "業界標準", "長期間対応"]
+      cons: ["商用利用は有料", "学習曲線がある"]
+
+    kerykeion:
+      name: "Kerykeion"
+      type: "Python Library"
+      description: "Pythonの占星術計算ライブラリ。Swiss Ephemerisベース。チャート生成、アスペクト検出、SVG出力が可能。"
+      license: "AGPL-3.0"
+      pricing: "無料（オープンソース）"
+      url: "https://pypi.org/project/kerykeion/"
+      languages: ["Python"]
+      pros: ["使いやすい", "チャート生成機能", "LLM統合可能"]
+      cons: ["Pythonのみ"]
+
+    vedicastro_api:
+      name: "VedicAstroAPI"
+      type: "Commercial API"
+      description: "ヴェーダ占星術・西洋占星術・タロットAPI。21言語対応。"
+      license: "Commercial"
+      pricing:
+        starter: "$19/month - 3000 API calls"
+        professional: "$49/month - 10000 API calls"
+        enterprise: "$199/month - 50000 API calls"
+      url: "https://vedicastroapi.com/"
+      features: ["ホロスコープ", "トランジット", "PDF報告書", "多言語"]
+      pros: ["包括的機能", "多言語対応", "PDF生成"]
+      cons: ["月額課金", "ヴェーダ占星術メイン"]
+
+    astrology_api:
+      name: "AstrologyAPI"
+      type: "Commercial API"
+      description: "ヴェーダ占星術API。ホロスコープ、予測、相性診断。"
+      license: "Commercial"
+      pricing:
+        basic: "$9/month - 1000 calls"
+        standard: "$29/month - 5000 calls"
+        premium: "$99/month - 20000 calls"
+      url: "https://astrologyapi.com/"
+      features: ["出生図", "トランジット", "ダシャー", "相性"]
+      pros: ["手頃な価格", "充実機能"]
+      cons: ["ヴェーダ占星術メイン（西洋占星術は限定的）"]
+
+    astro_seek:
+      name: "Astro-Seek API"
+      type: "Web Service / Potential API"
+      description: "無料の西洋占星術ツール。API化は要確認。"
+      license: "Web Service"
+      pricing: "無料（Web版）"
+      url: "https://horoscopes.astro-seek.com/"
+      features: ["出生図作成", "トランジット", "シンクロニシティ", "詳細天体暦"]
+      pros: ["無料", "高精度", "詳細データ"]
+      cons: ["公式API提供は不明、スクレイピングは非推奨"]
+
+  numerology_libraries:
+    custom_implementation:
+      name: "カスタム実装（推奨）"
+      type: "自作ライブラリ"
+      description: "数秘術の計算は比較的シンプルなため、自作が推奨される"
+      complexity: "低（数字の足し算とマッピング）"
+      languages: ["Python", "JavaScript", "Rust", "Any"]
+      example_code: |
+        def calculate_life_path(birth_date):
+            digits = [int(d) for d in birth_date.replace('-', '')]
+            total = sum(digits)
+            if total in [11, 22, 33]:
+                return total
+            while total > 9:
+                total = sum(int(d) for d in str(total))
+            return total
+
+  animal_fortune_libraries:
+    custom_implementation:
+      name: "カスタム実装（必須）"
+      type: "自作ライブラリ + 早見表"
+      description: "動物占いは日本独自の占いのため、専用APIは少ない。計算式または早見表を実装"
+      complexity: "中（シリアル値計算またはテーブルルックアップ）"
+      data_required: "60分類の性格データベース（要収集）"
+      implementation_approaches:
+        algorithm:
+          method: "シリアル値計算: ((serial_value + 8) % 60) + 1"
+          pros: ["動的計算可能", "メンテナンス容易"]
+        lookup_table:
+          method: "年月日の早見表"
+          pros: ["高速", "検証済みデータ"]
+          cons: ["年範囲に制限"]
+
+  sibling_psychology:
+    custom_implementation:
+      name: "カスタム実装（心理学研究ベース）"
+      type: "ルールベースシステム"
+      description: "心理学研究に基づくルールエンジン"
+      data_sources:
+        - "アドラー心理学文献"
+        - "出生順位研究論文"
+        - "日本の心理学研究（文教大学等）"
+      complexity: "低（条件分岐とテキスト生成）"
+
+  ai_text_generation:
+    openai_gpt:
+      name: "OpenAI GPT-4 / GPT-3.5"
+      type: "Commercial API"
+      description: "統合プロファイル文章生成に使用"
+      pricing:
+        gpt_4: "$0.03/1K input tokens, $0.06/1K output tokens"
+        gpt_3_5_turbo: "$0.0015/1K input tokens, $0.002/1K output tokens"
+      url: "https://platform.openai.com/"
+      use_case: "各占い結果を統合した自然な日本語プロファイル生成"
+
+    claude:
+      name: "Anthropic Claude"
+      type: "Commercial API"
+      description: "長文生成と複雑な統合に優れる"
+      pricing: "Usage-based（詳細はAnthropic参照）"
+      url: "https://www.anthropic.com/"
+      use_case: "統合プロファイル生成、矛盾の調整"
+
+  ai_image_generation:
+    dalle:
+      name: "DALL-E 3"
+      type: "Commercial API"
+      description: "OpenAIの画像生成API"
+      pricing: "$0.040 - $0.120 per image (depending on quality and size)"
+      url: "https://platform.openai.com/docs/guides/images"
+      use_case: "動物キャラ、野菜、フルーツ、星座イラスト生成"
+
+    midjourney:
+      name: "Midjourney"
+      type: "Commercial Service (Discord API)"
+      description: "高品質なアート生成"
+      pricing: "$10/month (Basic) - $120/month (Mega)"
+      url: "https://www.midjourney.com/"
+      use_case: "ハイクオリティな占いビジュアル"
+      note: "公式APIは未提供、Discord経由"
+
+    stable_diffusion:
+      name: "Stable Diffusion"
+      type: "Open Source / Commercial APIs"
+      description: "オープンソース画像生成モデル"
+      pricing: "無料（セルフホスト）/ API経由は有料"
+      url: "https://stability.ai/"
+      apis: ["DreamStudio API", "Replicate", "Hugging Face"]
+      use_case: "コスト効率的な画像生成"
+
+  implementation_recommendations:
+    backend:
+      language: "Python（占星術ライブラリが豊富）または Rust（高性能）"
+      frameworks: ["FastAPI (Python)", "Actix-web (Rust)"]
+      astrology: "Swiss Ephemeris (pyswisseph) または Kerykeion"
+      database: "PostgreSQL（ユーザーデータ、結果キャッシュ）"
+
+    frontend:
+      framework: "Next.js (React) または SvelteKit"
+      visualization: "D3.js（チャート）, Three.js（3Dビジュアル）"
+      ui_library: "Tailwind CSS, Chakra UI"
+
+    ai_integration:
+      llm: "OpenAI GPT-4（統合プロファイル生成）"
+      image_gen: "DALL-E 3 または Stable Diffusion"
+      prompt_engineering: "Few-shot learning for consistent profile generation"
+
+    deployment:
+      hosting: "Vercel (Frontend), Railway/Fly.io (Backend)"
+      cdn: "Cloudflare（画像配信）"
+      compute: "Serverless Functions（軽量処理）+ Container（占星術計算）"
+
+# ========================================
+# 10. 実装推奨事項 (Implementation Recommendations)
+# ========================================
+implementation_notes:
+  data_accuracy:
+    priority: "最優先事項"
+    guidelines:
+      - "占いデータは信頼できるソース（学術書、公式API、研究論文）から取得"
+      - "西洋占星術: Swiss Ephemerisを使用（業界標準の高精度）"
+      - "動物占い: 公式早見表または検証済み計算式"
+      - "数秘術: 標準的な計算方法（Pythagorean system）"
+      - "兄弟構成: アドラー心理学と現代研究の統合"
+
+  user_experience:
+    input_simplicity: "最小限の入力で最大限の結果"
+    optional_fields:
+      birth_time: "オプションだが、提供すれば精度向上を明示"
+      birth_place: "オプションだが、ホロスコープには必須と説明"
+    progressive_disclosure: "基本情報 → 詳細分析へ段階的に"
+
+  ethical_considerations:
+    disclaimers:
+      - "占いはエンターテイメントであり、人生の決定を占いだけに委ねないこと"
+      - "科学的根拠は限定的であることを明記"
+      - "個人の自由意志と努力が最も重要"
+
+    positive_framing:
+      - "弱みは成長の機会として表現"
+      - "困難は学びのチャンスとして解釈"
+      - "未来は可能性として提示（確定的な予言は避ける）"
+
+    privacy:
+      - "個人データ（生年月日、出生地等）の厳重管理"
+      - "GDPR / 個人情報保護法遵守"
+      - "データ削除オプションの提供"
+
+  scalability:
+    caching:
+      ephemeris_data: "天体暦データは事前計算してキャッシュ"
+      profile_results: "生成済みプロファイルはキャッシュ（ただし更新可能に）"
+
+    async_processing:
+      profile_generation: "統合プロファイル生成は非同期で処理（数秒かかる可能性）"
+      image_generation: "AI画像生成は非同期、生成中はプレースホルダー表示"
+
+    api_rate_limits:
+      external_apis: "外部API（OpenAI, Swiss Ephemeris等）のレート制限に注意"
+      quota_management: "ユーザーごとの生成回数制限（無料版）"
+
+  future_enhancements:
+    phase_2:
+      - "相性診断機能（2人のデータから相性分析）"
+      - "日運・週運・月運の詳細予測"
+      - "質問応答型AI占い師チャット"
+
+    phase_3:
+      - "東洋占星術（四柱推命、九星気学）の追加"
+      - "タロットカード統合"
+      - "コミュニティ機能（同じ星座/動物タイプのユーザー交流）"
+
+    phase_4:
+      - "AR/VR体験（自分のホロスコープを3Dで探索）"
+      - "音声出力（プロファイルの読み上げ）"
+      - "パーソナライズされた瞑想・アファメーション"
+
+# ========================================
+# メタデータ
+# ========================================
+data_sources:
+  astrology:
+    - "ARI 占星学総合研究所 (https://www.arijp.com/)"
+    - "Swiss Ephemeris Documentation (https://www.astro.com/swisseph/)"
+    - "Cafe Astrology (https://cafeastrology.com/)"
+
+  animal_fortune:
+    - "動物占い公式サイト（早見表）"
+    - "Excel計算式検証サイト (dai-memo.com)"
+
+  numerology:
+    - "カバラ数秘術研究文献"
+    - "Numerology専門書（Hans Decoz等）"
+
+  sibling_psychology:
+    - "アドラー心理学文献"
+    - "文教大学 出生順位研究論文 (2009)"
+    - "北海道女子短期大学 兄弟関係研究"
+
+version_history:
+  v1.0.0:
+    date: "2025-10-25"
+    changes:
+      - "初版リリース"
+      - "全占いシステムの詳細データ追加"
+      - "統合プロファイル生成アルゴリズム定義"
+      - "API/ライブラリリスト完成"
+      - "AI画像生成プロンプト追加"
+
+author: "Claude Code (Sonnet 4.5)"
+license: "Proprietary - For Shinyu AI App Development"
