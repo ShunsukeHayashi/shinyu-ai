@@ -1,3 +1,5 @@
+[![Built by 合同会社みやび](https://img.shields.io/badge/Built%20by-合同会社みやび-blue?style=flat-square&logo=github)](https://miyabi-ai.jp)
+
 # Shinyu AI（親友AI）
 
 **心に寄り添う親友AI - あなただけの分身キャラクターとの対話システム**
